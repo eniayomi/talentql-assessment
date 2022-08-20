@@ -35,12 +35,12 @@ jobs:
           ISSUE_BODY_CLEAN=$(echo ${ISSUE_BODY} | sed 's/[][]//g' | sed 's/,/ /g' | sed 's/\"//g')
           echo $ISSUE_BODY_CLEAN
           declare -a arr=($ISSUE_BODY_CLEAN)
-          rm result.txt | true
+          rm result.txt out.txt | true
           touch result.txt
           for i in "${arr[@]}"
           do
             echo "Running scan for $i ......"
-            trivy image $i > out.txt
+            trivy image --format template --template '{{- $critical := 0 }}{{- $high := 0 }}{{- $medium := 0 }}{{- $low := 0 }}{{- $unknown := 0 }}{{- range . }}{{- range .Vulnerabilities }}{{- if  eq .Severity "CRITICAL" }}{{- $critical = add $critical 1 }}{{- end }}{{- if  eq .Severity "HIGH" }}{{- $high = add $high 1 }}{{- end }}{{- if  eq .Severity "MEDIUM" }}{{- $medium = add $medium 1 }}{{- end }}{{- if  eq .Severity "LOW" }}{{- $low = add $low 1 }}{{- end }}{{- if  eq .Severity "UNKNOWN" }}{{- $unknown = add $unknown 1 }}{{- end }}{{- end }}{{- end }}Critical: {{ $critical }}, High: {{ $high }}, Medium: {{ $medium }}, Low: {{ $low }}, Unknown: {{ $unknown }}' $i > out.txt
             result=$( tail -n 1 out.txt )
             if [[ "$PASS" == "$result" ]]
             then
