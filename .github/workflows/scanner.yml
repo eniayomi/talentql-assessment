@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GRADR_TOKEN }}
       ISSUE_URL: ${{ github.event.issue.html_url }}
       ISSUE_BODY: ${{ github.event.issue.body }}
     
@@ -44,10 +44,10 @@ jobs:
             result=$( tail -n 1 out.txt )
             if [[ "$PASS" == "$result" ]]
             then
-                echo "$i,PASSES" >> result.txt
+                echo "$i,SAFE" >> result.txt
 
             else
-                echo "$i,FAILS" >> result.txt
+                echo "$i,NOT SAFE" >> result.txt
             fi
           done
       - name: Final
@@ -57,9 +57,7 @@ jobs:
                     | split(",") | {image: .[0], status: .[1]} ]' result.txt)
           echo $FINAL
 
-      - name: Add comment to issue
-        uses: peter-evans/create-or-update-comment@a35cf36e5301d70b76f316e867e7788a55a31dae
+      - uses: ben-z/actions-comment-on-issue@1.0.2
         with:
-          issue-number: ${{ github.event.issue.number }}
-          body: |
-            ${{ steps.final.outputs.stdout }} 
+          message: ${{ steps.final.outputs.stdout }} 
+          GITHUB_TOKEN: ${GITHUB_TOKEN}
