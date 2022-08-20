@@ -20,7 +20,7 @@ jobs:
       - name: Init
         run: |
           sudo apt-get update
-          sudo apt-get install -y wget apt-transport-https gnupg lsb-release
+          sudo apt-get install -y wget apt-transport-https gnupg lsb-release jo jq
           wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
           echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
           sudo apt-get update
@@ -30,4 +30,31 @@ jobs:
       - name: TODO - Scan Vulnerabilities
         run: |
           echo "starting scan......"
-          echo ${ISSUE_BODY}
+          PASS="Total: 0 (UNKNOWN: 0, LOW: 0, MEDIUM: 0, HIGH: 0, CRITICAL: 0)"
+          ISSUE_BODY_CLEAN=$(echo ${ISSUE_BODY} | sed 's/[][]//g' | sed 's/,//g')
+          declare -a arr=($ISSUE_BODY_CLEAN)
+          rm result.txt | true
+          touch result.txt
+          for i in "${arr[@]}"
+          do
+            echo "Running scan for $i ......"
+            #trivy image $i
+            result=$( tail -n 1 out.txt )
+            if [[ "$PASS" == "$result" ]]
+            then
+                echo "$i,PASSES" >> result.txt
+
+            else
+                echo "$i,FAILS" >> result.txt
+            fi
+          done
+          FINAL=$(jq -Rs '[ split("\n")[] | select(length > 0) 
+                    | split(",") | {image: .[0], status: .[1]} ]' result.txt)
+          echo "FINAL_RESULT=$FINAL" >> $GITHUB_ENV
+
+      - name: Add comment to issue
+        uses: peter-evans/create-or-update-comment@a35cf36e5301d70b76f316e867e7788a55a31dae
+        with:
+          issue-number: ${{ github.event.issue.number }}
+          body: |
+            echo $FINAL_RESULT
