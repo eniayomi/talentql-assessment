@@ -56,8 +56,11 @@ jobs:
           FINAL=$(jq -Rs '[ split("\n")[] | select(length > 0) 
                     | split(",") | {image: .[0], status: .[1]} ]' result.txt)
           echo $FINAL
-
+          echo '::set-output name=FINAL_OUT::$FINAL'
+      - name: Test Final
+        run: |
+          echo ${{ steps.final.outputs.FINAL_OUT}} 
       - uses: ben-z/actions-comment-on-issue@1.0.2
         with:
-          message: ${{ steps.final.outputs.stdout }} 
+          message: ${{ steps.final.outputs.FINAL_OUT }} 
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
