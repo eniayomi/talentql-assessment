@@ -42,24 +42,18 @@ jobs:
             echo "Running scan for $i ......"
             trivy image --format template --template '{{- $critical := 0 }}{{- $high := 0 }}{{- $medium := 0 }}{{- $low := 0 }}{{- $unknown := 0 }}{{- range . }}{{- range .Vulnerabilities }}{{- if  eq .Severity "CRITICAL" }}{{- $critical = add $critical 1 }}{{- end }}{{- if  eq .Severity "HIGH" }}{{- $high = add $high 1 }}{{- end }}{{- if  eq .Severity "MEDIUM" }}{{- $medium = add $medium 1 }}{{- end }}{{- if  eq .Severity "LOW" }}{{- $low = add $low 1 }}{{- end }}{{- if  eq .Severity "UNKNOWN" }}{{- $unknown = add $unknown 1 }}{{- end }}{{- end }}{{- end }}Critical: {{ $critical }}, High: {{ $high }}, Medium: {{ $medium }}, Low: {{ $low }}, Unknown: {{ $unknown }}' $i > out.txt
             result=$( tail -n 1 out.txt )
-            echo "debugggggg1"
             if [[ "$PASS" == "$result" ]]
             then
-                echo "debugggggg2"
                 echo "$i,PASSES" >> result.txt
-                echo "debugggggg3"
 
             else
                 echo "$i,FAILS" >> result.txt
-                echo "debugggggg4"
             fi
           done
-          echo "debugggggg5"
           FINAL=$(jq -Rs '[ split("\n")[] | select(length > 0) 
                     | split(",") | {image: .[0], status: .[1]} ]' result.txt)
-          echo "debugggggg6"
+          echo $FINAL
           echo "FINAL_RESULT=$FINAL" >> $GITHUB_ENV
-          echo "debugggggg7"
 
       - name: Add comment to issue
         uses: peter-evans/create-or-update-comment@a35cf36e5301d70b76f316e867e7788a55a31dae
