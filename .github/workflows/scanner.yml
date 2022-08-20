@@ -31,7 +31,7 @@ jobs:
       - name: TODO - Scan Vulnerabilities
         run: |
           echo "starting scan......"
-          PASS="Total: 0 (UNKNOWN: 0, LOW: 0, MEDIUM: 0, HIGH: 0, CRITICAL: 0)"
+          PASS="Critical: 0, High: 0, Medium: 0, Low: 0, Unknown: 0"
           ISSUE_BODY_CLEAN=$(echo ${ISSUE_BODY} | sed 's/[][]//g' | sed 's/,/ /g' | sed 's/\"//g')
           echo $ISSUE_BODY_CLEAN
           declare -a arr=($ISSUE_BODY_CLEAN)
