@@ -50,14 +50,16 @@ jobs:
                 echo "$i,FAILS" >> result.txt
             fi
           done
+      - name: Final
+        id: final
+        run: |
           FINAL=$(jq -Rs '[ split("\n")[] | select(length > 0) 
                     | split(",") | {image: .[0], status: .[1]} ]' result.txt)
           echo $FINAL
-          echo "FINAL_RESULT=$FINAL" >> $GITHUB_ENV
 
       - name: Add comment to issue
         uses: peter-evans/create-or-update-comment@a35cf36e5301d70b76f316e867e7788a55a31dae
         with:
           issue-number: ${{ github.event.issue.number }}
           body: |
-            echo $FINAL_RESULT
+            ${{ steps.final.outputs.stdout }} 
