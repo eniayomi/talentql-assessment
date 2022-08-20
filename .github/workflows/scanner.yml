@@ -60,4 +60,4 @@ jobs:
       - uses: ben-z/actions-comment-on-issue@1.0.2
         with:
           message: ${{ steps.final.outputs.stdout }} 
-          GITHUB_TOKEN: ${GITHUB_TOKEN}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
