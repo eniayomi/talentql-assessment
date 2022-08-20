@@ -38,7 +38,7 @@ jobs:
           for i in "${arr[@]}"
           do
             echo "Running scan for $i ......"
-            #trivy image $i
+            trivy image $i > out.txt
             result=$( tail -n 1 out.txt )
             if [[ "$PASS" == "$result" ]]
             then
