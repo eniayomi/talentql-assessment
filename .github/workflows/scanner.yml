@@ -56,7 +56,7 @@ jobs:
           FINAL=$(jq -Rs '[ split("\n")[] | select(length > 0) 
                     | split(",") | {image: .[0], status: .[1]} ]' result.txt)
           echo $FINAL
-          echo '::set-output name=FINAL_OUT::$FINAL'
+          echo "::set-output name=FINAL_OUT::$(echo $FINAL)"
       - name: Test Final
         run: |
           echo ${{ steps.final.outputs.FINAL_OUT}} 
