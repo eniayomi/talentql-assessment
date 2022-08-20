@@ -33,6 +33,8 @@ jobs:
           echo "starting scan......"
           PASS="Total: 0 (UNKNOWN: 0, LOW: 0, MEDIUM: 0, HIGH: 0, CRITICAL: 0)"
           ISSUE_BODY_CLEAN=$(echo ${ISSUE_BODY} | sed 's/[][]//g' | sed 's/,//g')
+          echo ${ISSUE_BODY}
+          echo $ISSUE_BODY_CLEAN
           declare -a arr=($ISSUE_BODY_CLEAN)
           rm result.txt | true
           touch result.txt
