@@ -20,11 +20,7 @@ jobs:
       - name: Init
         run: |
           sudo apt-get update
-          sudo apt-get install -y wget apt-transport-https gnupg lsb-release jo jq
-          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
-          echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
-          sudo apt-get update
-          sudo apt-get install trivy -y
+          sudo apt-get install -y wget apt-transport-https gnupg lsb-release trivy
 
       # TASK/TODO: 
       # Build this step in the workflow. Refer to the linked document in the README for more details
@@ -40,14 +36,14 @@ jobs:
           for i in "${arr[@]}"
           do
             echo "Running scan for $i ......"
-            trivy image --format template --template '{{- $critical := 0 }}{{- $high := 0 }}{{- $medium := 0 }}{{- $low := 0 }}{{- $unknown := 0 }}{{- range . }}{{- range .Vulnerabilities }}{{- if  eq .Severity "CRITICAL" }}{{- $critical = add $critical 1 }}{{- end }}{{- if  eq .Severity "HIGH" }}{{- $high = add $high 1 }}{{- end }}{{- if  eq .Severity "MEDIUM" }}{{- $medium = add $medium 1 }}{{- end }}{{- if  eq .Severity "LOW" }}{{- $low = add $low 1 }}{{- end }}{{- if  eq .Severity "UNKNOWN" }}{{- $unknown = add $unknown 1 }}{{- end }}{{- end }}{{- end }}Critical: {{ $critical }}, High: {{ $high }}, Medium: {{ $medium }}, Low: {{ $low }}, Unknown: {{ $unknown }}' $i > out.txt
+            trivy image --format template --template '{{- $critical := 0 }}{{- $high := 0 }}{{- $medium := 0 }}{{- $low := 0 }}{{- $unknown := 0 }}{{- range . }}{{- range .Vulnerabilities }}{{- if  eq .Severity "CRITICAL" }}{{- $critical = add $critical 1 }}{{- end }}{{- if  eq .Severity "HIGH" }}{{- $high = add $high 1 }}{{- end }}{{- if  eq .Severity "MEDIUM" }}{{- $medium = add $medium 1 }}{{- end }}{{- if  eq .Severity "LOW" }}{{- $low = add $low 1 }}{{- end }}{{- if  eq .Severity "UNKNOWN" }}{{- $unknown = add $unknown 1 }}{{- end }}{{- end }}{{- end }}Critical: {{ $critical }}, High: {{ $high }}, Medium: {{ $medium }}, Low: {{ $low }}, Unknown: {{ $unknown }}' $i --security-checks vuln > out.txt
             result=$( tail -n 1 out.txt )
             if [[ "$PASS" == "$result" ]]
             then
                 echo "$i,SAFE" >> result.txt
 
             else
-                echo "$i,NOT SAFE" >> result.txt
+                echo "$i,UNSAFE" >> result.txt
             fi
           done
       - name: Final
@@ -57,9 +53,6 @@ jobs:
                     | split(",") | {image: .[0], status: .[1]} ]' result.txt)
           echo $FINAL
           echo "::set-output name=FINAL_OUT::$(echo $FINAL)"
-      - name: Test Final
-        run: |
-          echo ${{ steps.final.outputs.FINAL_OUT}} 
       - uses: ben-z/actions-comment-on-issue@1.0.2
         with:
           message: ${{ steps.final.outputs.FINAL_OUT }} 
