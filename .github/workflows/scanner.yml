@@ -30,6 +30,4 @@ jobs:
       - name: TODO - Scan Vulnerabilities
         run: |
           echo "starting scan......"
-          echo ${ISSUE_URL}
-
-      
+          echo ${ISSUE_BODY}
