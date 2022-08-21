@@ -1,6 +1,6 @@
-##Implementation Details
+## Implementation Details
 
-#Major Tools Used
+# Major Tools Used
 
 - Trivy
 - jq
@@ -12,5 +12,5 @@ jq was used to created the JSON array containing the image name and its status
 
 sed was used to do some formating and stripping of the initial input, which is a list of images to be scanned.
 
-##How Does it work?
+## How Does it work?
 
