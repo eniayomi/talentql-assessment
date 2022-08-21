@@ -1,6 +1,6 @@
-## Implementation Details
+# Implementation Details
 
-# Major Tools Used
+## Major Tools Used
 
 - Trivy
 - jq
