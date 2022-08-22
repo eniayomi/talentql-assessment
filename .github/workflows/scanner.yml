@@ -33,7 +33,6 @@ jobs:
           echo "starting scan......"
           PASS="Critical: 0, High: 0, Medium: 0, Low: 0, Unknown: 0"
           ISSUE_BODY_CLEAN=$(echo ${ISSUE_BODY} | sed 's/[][]//g' | sed 's/,/ /g' | sed 's/\"//g')
-          echo $ISSUE_BODY_CLEAN
           declare -a arr=($ISSUE_BODY_CLEAN)
           rm result.txt out.txt | true
           touch result.txt
@@ -56,7 +55,6 @@ jobs:
         run: |
           FINAL=$(jq -Rs '[ split("\n")[] | select(length > 0) 
                     | split(",") | {image: .[0], status: .[1]} ]' result.txt)
-          echo $FINAL
           echo "::set-output name=FINAL_OUT::$(echo $FINAL)"
       - uses: ben-z/actions-comment-on-issue@1.0.2
         with:
